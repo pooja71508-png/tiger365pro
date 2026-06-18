@@ -11,7 +11,7 @@ import random
 import string
 import os
 
-TOKEN = ("8719632545:AAHQ-ykDu0tOcxpB1BNJMQqUbZ7gY3jV-4U)
+TOKEN = "8719632545:AAHQ-ykDu0tOcxpB1BNJMQqUbZ7gY3jV-4U
 
 NAME, PHONE = range(2)
 
