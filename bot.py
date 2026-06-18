@@ -1,4 +1,4 @@
-from telegram import Update, ReplyKeyboardRemove
+from telegram import Update
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -9,68 +9,73 @@ from telegram.ext import (
 )
 import random
 import string
+import os
 
-TOKEN = "8719632545:AAHjJiMhflZER4dTOkNRvRFGWNaHSuSNpmA"
-ADMIN_CHAT_ID = "7038610091"
+TOKEN = os.getenv("8719632545:AAHjJiMhflZER4dTOkNRvRFGWNaHSuSNpmA")
 
-NAME, MOBILE = range(2)
-
-WELCOME_MESSAGE = """
-🎉 Welcome to Tiger365.pro 🎉
-
-🏆 Premium Gaming Experience
-⚡ Fast Registration
-🔐 Secure Account Access
-💎 Exclusive Member Benefits
-
-Please enter your Full Name to continue.
-"""
+NAME, PHONE = range(2)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(WELCOME_MESSAGE)
+    await update.message.reply_text(
+        "🎉 Tiger365.pro me aapka swagat hai!\n\n"
+        "📝 Kripya apna naam darj kare:"
+    )
     return NAME
 
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["name"] = update.message.text
-    await update.message.reply_text("📱 Please enter your Mobile Number:")
-    return MOBILE
+    await update.message.reply_text(
+        "📱 Ab apna mobile number bhejiye:"
+    )
+    return PHONE
 
-async def get_mobile(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def get_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     name = context.user_data["name"]
-    mobile = update.message.text
+    phone = update.message.text
 
-    user_id = "TG" + "".join(random.choices(string.digits, k=6))
-    password = "".join(random.choices(string.ascii_letters + string.digits, k=8))
+    userid = "TG" + str(random.randint(100000, 999999))
+    password = ''.join(random.choices(
+        string.ascii_uppercase + string.digits, k=8
+    ))
 
     await update.message.reply_text(
-        f"✅ Registration Successful\\n\\n👤 Name: {name}\\n📱 Mobile: {mobile}\\n\\n🆔 User ID: {user_id}\\n🔐 Password: {password}"
+        f"✅ Account Request Successful\n\n"
+        f"👤 Name: {name}\n"
+        f"📱 Mobile: {phone}\n\n"
+        f"🆔 User ID: {userid}\n"
+        f"🔐 Password: {password}\n\n"
+        f"💬 Sahayata ke liye:\n"
+        f"https://t.me/Shreya_MM"
     )
+
+    # Admin notification
+    ADMIN_CHAT_ID ="7038610091"  # apna Telegram ID daalo
 
     await context.bot.send_message(
         chat_id=ADMIN_CHAT_ID,
-        text=f"New Registration\\n\\nName: {name}\\nMobile: {mobile}\\nUser ID: {user_id}\\nPassword: {password}"
+        text=(
+            "🆕 New Lead Received\n\n"
+            f"👤 Name: {name}\n"
+            f"📱 Mobile: {phone}\n"
+            f"🆔 User ID: {userid}\n"
+            f"🔐 Password: {password}"
+        )
     )
 
     return ConversationHandler.END
 
-async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Registration Cancelled.", reply_markup=ReplyKeyboardRemove())
-    return ConversationHandler.END
+app = Application.builder().token(TOKEN).build()
 
-def main():
-    app = Application.builder().token(TOKEN).build()
+conv_handler = ConversationHandler(
+    entry_points=[CommandHandler("start", start)],
+    states={
+        NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_name)],
+        PHONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_phone)],
+    },
+    fallbacks=[],
+)
 
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", start)],
-        states={
-            NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_name)],
-            MOBILE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_mobile)],
-        },
-        fallbacks=[CommandHandler("cancel", cancel)],
-    )
+app.add_handler(conv_handler)
 
-    app.add_handler(conv_handler)
-    app.run_polling()
-
-if __name__ == "__main__":
-    main()
+print("Bot Started...")
+app.run_polling()
