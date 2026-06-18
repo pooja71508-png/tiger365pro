@@ -10,7 +10,7 @@ from telegram.ext import (
 import random
 import string
 
-TOKEN = "8719632545:AAHjAWp3C8Frxu1UjlCXOUFyXdTbrBEW7eY"
+TOKEN = "8719632545:AAHjJiMhflZER4dTOkNRvRFGWNaHSuSNpmA"
 ADMIN_CHAT_ID = "7038610091"
 
 NAME, MOBILE = range(2)
